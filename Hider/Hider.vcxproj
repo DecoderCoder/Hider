@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{1c83a660-7e43-43b2-a592-3ff772ce71d8}</ProjectGuid>
+    <RootNamespace>Hider</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectDir)DirectX\ImGui;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(ProjectDir)DirectX\ImGui;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="DirectX\DirectX.cpp" />
+    <ClCompile Include="DirectX\ImGui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="DirectX\ImGui\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="DirectX\ImGui\imgui.cpp" />
+    <ClCompile Include="DirectX\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="DirectX\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="DirectX\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="DirectX\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="DirectX\ImGui\misc\cpp\imgui_stdlib.cpp" />
+    <ClCompile Include="Hider\Hider.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_CoalescedMSFStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_DBIStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_DBITypes.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_DirectMSFStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_GlobalSymbolStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_ImageSectionStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_InfoStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_IPIStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_ModuleInfoStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_ModuleLineStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_ModuleSymbolStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_NamesStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_PCH.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_PublicSymbolStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_RawFile.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_SectionContributionStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_SourceFileStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_TPIStream.cpp" />
+    <ClCompile Include="libs\RawPDB\PDB_Types.cpp" />
+    <ClCompile Include="libs\Zydis\Zydis.c" />
+    <ClCompile Include="Windows\ImGuiWindow.cpp" />
+    <ClCompile Include="Windows\MainWindow\MainWindow.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DirectX\D3DX11.h" />
+    <ClInclude Include="DirectX\D3DX11async.h" />
+    <ClInclude Include="DirectX\D3DX11core.h" />
+    <ClInclude Include="DirectX\D3DX11tex.h" />
+    <ClInclude Include="DirectX\DirectX.h" />
+    <ClInclude Include="DirectX\ImGui\backends\imgui_impl_dx11.h" />
+    <ClInclude Include="DirectX\ImGui\backends\imgui_impl_win32.h" />
+    <ClInclude Include="DirectX\ImGui\imconfig.h" />
+    <ClInclude Include="DirectX\ImGui\imgui.h" />
+    <ClInclude Include="DirectX\ImGui\imgui_internal.h" />
+    <ClInclude Include="DirectX\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="DirectX\ImGui\imstb_textedit.h" />
+    <ClInclude Include="DirectX\ImGui\imstb_truetype.h" />
+    <ClInclude Include="DirectX\ImGui\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="Globals.h" />
+    <ClInclude Include="Hider\Hider.h" />
+    <ClInclude Include="libs\DropManager.h" />
+    <ClInclude Include="libs\Utils.h" />
+    <ClInclude Include="Main.h" />
+    <ClInclude Include="libs\ntdll\ntdll.h" />
+    <ClInclude Include="libs\ntdll\ntstatus.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_ArrayView.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_Assert.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_BitOperators.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_BitUtil.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_DisableWarningsPop.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_DisableWarningsPush.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_Forward.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_Log.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_Macros.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_Memory.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_Move.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_Platform.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_PointerUtil.h" />
+    <ClInclude Include="libs\RawPDB\Foundation\PDB_Warnings.h" />
+    <ClInclude Include="libs\RawPDB\PDB.h" />
+    <ClInclude Include="libs\RawPDB\PDB_CoalescedMSFStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_DBIStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_DBITypes.h" />
+    <ClInclude Include="libs\RawPDB\PDB_DirectMSFStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_ErrorCodes.h" />
+    <ClInclude Include="libs\RawPDB\PDB_GlobalSymbolStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_ImageSectionStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_InfoStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_IPIStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_IPITypes.h" />
+    <ClInclude Include="libs\RawPDB\PDB_ModuleInfoStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_ModuleLineStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_ModuleSymbolStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_NamesStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_PCH.h" />
+    <ClInclude Include="libs\RawPDB\PDB_PublicSymbolStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_RawFile.h" />
+    <ClInclude Include="libs\RawPDB\PDB_SectionContributionStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_SourceFileStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_TPIStream.h" />
+    <ClInclude Include="libs\RawPDB\PDB_TPITypes.h" />
+    <ClInclude Include="libs\RawPDB\PDB_Types.h" />
+    <ClInclude Include="libs\RawPDB\PDB_Util.h" />
+    <ClInclude Include="libs\XEDParse\XEDParse.h" />
+    <ClInclude Include="libs\Zydis\Zydis.h" />
+    <ClInclude Include="Resources\file_LazyImporter_hpp.h" />
+    <ClInclude Include="Resources\LazyImporter.hpp" />
+    <ClInclude Include="Windows\MainWindow\MainWindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="DirectX\lib\x64\d3dx11.lib" />
+    <Library Include="DirectX\lib\x86\d3dx11.lib" />
+    <Library Include="libs\ntdll\x64_lib\ntdllp.lib" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
