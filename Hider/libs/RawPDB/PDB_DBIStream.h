@@ -31,6 +31,7 @@ namespace PDB
 
 		PDB_DEFAULT_MOVE(DBIStream);
 
+		PDB_NO_DISCARD ErrorCode HasValidSymbolRecordStream(const RawFile& file) const PDB_NO_EXCEPT;
 		PDB_NO_DISCARD ErrorCode HasValidImageSectionStream(const RawFile& file) const PDB_NO_EXCEPT;
 		PDB_NO_DISCARD ErrorCode HasValidPublicSymbolStream(const RawFile& file) const PDB_NO_EXCEPT;
 		PDB_NO_DISCARD ErrorCode HasValidGlobalSymbolStream(const RawFile& file) const PDB_NO_EXCEPT;
@@ -43,6 +44,11 @@ namespace PDB
 		PDB_NO_DISCARD SourceFileStream CreateSourceFileStream(const RawFile& file) const PDB_NO_EXCEPT;
 		PDB_NO_DISCARD SectionContributionStream CreateSectionContributionStream(const RawFile& file) const PDB_NO_EXCEPT;
 		PDB_NO_DISCARD ModuleInfoStream CreateModuleInfoStream(const RawFile& file) const PDB_NO_EXCEPT;
+
+		PDB_NO_DISCARD const DBI::StreamHeader& GetHeader(void) const PDB_NO_EXCEPT
+		{
+			return m_header;
+		}
 
 	private:
 		DBI::StreamHeader m_header;

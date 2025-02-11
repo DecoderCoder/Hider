@@ -103,6 +103,8 @@ namespace PDB
 				LF_MEMBERMODIFY = 0x001513u,
 				LF_MANAGED = 0x001514u,
 				LF_TYPESERVER2 = 0x001515u,
+				LF_CLASS2 = 0x001608u,
+				LF_STRUCTURE2 = 0x001609u,
 
 				LF_NUMERIC = 0x8000u,
 				LF_CHAR = 0x8000u,
@@ -144,6 +146,11 @@ namespace PDB
 				T_HRESULT = 0x0008u,			// OLE/COM HRESULT
 				T_32PHRESULT = 0x0408u,			// OLE/COM HRESULT __ptr32 *
 				T_64PHRESULT = 0x0608u,			// OLE/COM HRESULT __ptr64 *
+
+				// Emitted due to a compiler bug? 
+				// 0x0600 bits appears to indicate a 64-bit pointer, but it has no type?
+				// Seen as type index for C11 "_Atomic uint32_t*" variable and constant.
+				T_UNKNOWN_0600 = 0x0600u,
 
 				T_PVOID = 0x0103u,				// near pointer to void
 				T_PFVOID = 0x0203u,				// far pointer to void
@@ -524,7 +531,7 @@ namespace PDB
 			};
 
 			// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L1120
-			struct TypePropery
+			struct TypeProperty
 			{
 				uint16_t packed : 1;			// true if structure is packed
 				uint16_t ctor : 1;				// true if constructors or destructors present
@@ -593,16 +600,23 @@ namespace PDB
 						};
 					}LF_BCLASS;
 
-					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L2483
+					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L2521
+					struct
+					{
+						MemberAttributes	attributes;	// attribute
+						uint32_t			index;		// type index of direct virtual base class
+						uint32_t			vbpIndex;   // type index of virtual base pointer
+						PDB_FLEXIBLE_ARRAY_MEMBER(char, vbpOffset); // virtual base pointer offset from address point
+					} LF_VBCLASS, LF_IVBCLASS;
 
+					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L2483
 					// index leaf - contains type index of another leaf
 					// a major use of this leaf is to allow the compilers to emit a
 					// long complex list (LF_FIELD) in smaller pieces.
 					struct
 					{
-						uint16_t leaf; // LF_INDEX
 						uint16_t pad0; // internal padding, must be 0
-						uint16_t type; // type index of referenced leaf
+						uint32_t type; // type index of referenced leaf
 					} LF_INDEX;
 
 					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L2615
@@ -670,6 +684,15 @@ namespace PDB
 				} data;
 			};
 
+			// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L2131
+			struct MethodListEntry
+			{
+				MemberAttributes attributes;					// method attribute
+				uint16_t		pad0;							// internal padding, must be 0
+				uint32_t		index;							// index to type record for procedure
+				PDB_FLEXIBLE_ARRAY_MEMBER(uint32_t, vbaseoff);	// offset in vfunctable if virtual, empty otherwise.
+			};
+
 			// all CodeView records are stored as a header, followed by variable-length data.
 			// internal Record structs such as S_PUB32, S_GDATA32, etc. correspond to the data layout of a CodeView record of that kind.
 			struct Record
@@ -681,17 +704,10 @@ namespace PDB
 					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L2144
 					struct
 					{
-						PDB_FLEXIBLE_ARRAY_MEMBER(uint32_t, mList);
+						// This is actually a list of the MethodListEntry type above, but it has flexible
+						// size, so you need to manually iterate.
+						PDB_FLEXIBLE_ARRAY_MEMBER(char, mList);
 					} LF_METHODLIST;
-
-					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L2131
-					struct
-					{
-						MemberAttributes attributes;					// method attribute
-						uint16_t		pad0;							// internal padding, must be 0
-						uint32_t		index;							// index to type record for procedure
-						PDB_FLEXIBLE_ARRAY_MEMBER(uint32_t, vbaseoff);	// offset in vfunctable if
-					} METHOD;
 
 					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L1801
 					struct
@@ -797,7 +813,7 @@ namespace PDB
 					struct
 					{
 						uint16_t count;			// count of number of elements in class
-						TypePropery property;	// property attribute field
+						TypeProperty property;	// property attribute field
 						uint32_t field;			// type index of LF_FIELD descriptor list
 						uint32_t derived;		// type index of derived from list if not zero
 						uint32_t vshape;		// type index of vshape table for this class
@@ -808,11 +824,25 @@ namespace PDB
 						};
 					} LF_CLASS;
 
+					struct
+					{
+						uint16_t count;			// count of number of elements in class
+						uint32_t property;		// property attribute field
+						uint32_t field;			// type index of LF_FIELD descriptor list
+						uint32_t derived;		// type index of derived from list if not zero
+						uint32_t vshape;		// type index of vshape table for this class
+						union
+						{
+							PDB_FLEXIBLE_ARRAY_MEMBER(char, data);
+							LeafEasy lfEasy;
+						};
+					} LF_CLASS2;
+
 					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L1647
 					struct
 					{
 						uint16_t count;			// count of number of elements in class
-						TypePropery property;	// property attribute field
+						TypeProperty property;	// property attribute field
 						uint32_t field;			// type index of LF_FIELD descriptor list
 						PDB_FLEXIBLE_ARRAY_MEMBER(char, data);
 					} LF_UNION;
@@ -821,7 +851,7 @@ namespace PDB
 					struct
 					{
 						uint16_t count;			// count of number of elements in class
-						TypePropery property;	// property attribute field
+						TypeProperty property;	// property attribute field
 						uint32_t utype;			// underlying type of the enum
 						uint32_t field;			// type index of LF_FIELD descriptor list
 						PDB_FLEXIBLE_ARRAY_MEMBER(char, name);

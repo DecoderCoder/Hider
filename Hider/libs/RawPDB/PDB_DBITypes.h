@@ -120,12 +120,16 @@ namespace PDB
 			enum class PDB_NO_DISCARD SymbolRecordKind : uint16_t
 			{
 				S_END =										0x0006u,		// block, procedure, "with" or thunk end
+				S_SKIP =									0x0007u,        // Reserve symbol space in $$Symbols table
 				S_FRAMEPROC =								0x1012u,		// extra frame and proc information
+				S_ANNOTATION =								0x1019u,		// annotation string literals ("__annotation" intrinsic, e.g. via NT_ASSERT)
 				S_OBJNAME =									0x1101u,		// full path to the original compiled .obj. can point to remote locations and temporary files, not necessarily the file that was linked into the executable
 				S_THUNK32 =									0x1102u,		// thunk start
 				S_BLOCK32 =									0x1103u,		// block start
 				S_LABEL32 =									0x1105u,		// code label
-				S_CONSTANT =        						0x1107u,        // constant symbol
+				S_REGISTER =								0x1106u,		// register variable
+				S_CONSTANT =								0x1107u,		// constant symbol
+				S_BPREL32 =									0x110Bu,		// BP-relative address (almost like S_REGREL32)
 				S_LDATA32 =									0x110Cu,		// (static) local data
 				S_GDATA32 =									0x110Du,		// global data
 				S_PUB32 =									0x110Eu,		// public symbol
@@ -134,6 +138,7 @@ namespace PDB
 				S_REGREL32 =								0x1111u,		// register relative address
 				S_LTHREAD32 =								0x1112u,		// (static) thread-local data
 				S_GTHREAD32 =								0x1113u,		// global thread-local data
+				S_UNAMESPACE =								0x1124u,		// using namespace
 				S_PROCREF =									0x1125u,		// reference to function in any compiland
 				S_LPROCREF =								0x1127u,		// local reference to function in any compiland
 				S_TRAMPOLINE =								0x112Cu,		// incremental linking trampoline
@@ -163,7 +168,9 @@ namespace PDB
 				S_CALLERS =									0x115Bu,
 				S_INLINESITE2 =								0x115Du,		// extended inline site information
 				S_HEAPALLOCSITE = 							0x115Eu,		// heap allocation site
-				S_INLINEES =            					0x1168u,		// https://llvm.org/docs/PDB/CodeViewSymbols.html#s-inlinees-0x1168
+				S_INLINEES =			 					0x1168u,		// https://llvm.org/docs/PDB/CodeViewSymbols.html#s-inlinees-0x1168
+				S_REGREL32_INDIR =							0x1171u,
+				S_REGREL32_ENCTMP =							0x1179u,
 				S_UDT =										0x1108u,		// user-defined type
 				S_UDT_ST =									0x1003u,		// user-defined structured types
 			};
@@ -197,6 +204,15 @@ namespace PDB
 			// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvconst.h#L392
 			enum class PDB_NO_DISCARD Register : uint16_t
 			{
+				EAX = 17,
+				ECX = 18,
+				EDX = 19,
+				EBX = 20,
+				ESP = 21,
+				EBP = 22,
+				ESI = 23,
+				EDI = 24,
+
 				RAX = 328,
 				RBX = 329,
 				RCX = 330,
@@ -204,7 +220,18 @@ namespace PDB
 				RSI = 332,
 				RDI = 333,
 				RBP = 334,
-				RSP = 335
+				RSP = 335,
+				R8 = 336,
+				R9 = 337,
+				R10 = 338,
+				R11 = 339,
+				R12 = 340,
+				R13 = 341,
+				R14 = 342,
+				R15 = 343,
+
+				RIP = 33,		// also EIP for x32
+				EFLAGS = 34,	// same for x64 and x32
 			};
 
 
@@ -399,6 +426,14 @@ namespace PDB
 						} flags;
 					} S_FRAMEPROC;
 
+					struct
+					{
+						uint32_t offset;
+						uint16_t section;
+						uint16_t annotationsCount;						// number of zero-terminated annotation strings
+						PDB_FLEXIBLE_ARRAY_MEMBER(char, annotations);	// sequence of zero-terminated annotation strings
+					} S_ANNOTATIONSYM;
+
 					// https://github.com/microsoft/microsoft-pdb/blob/master/include/cvinfo.h#L3696
 					struct
 					{
@@ -415,6 +450,11 @@ namespace PDB
 						uint16_t section;
 						PDB_FLEXIBLE_ARRAY_MEMBER(char, name);
 					} S_GDATA32, S_GTHREAD32, S_LDATA32, S_LTHREAD32;
+
+					struct
+					{
+						PDB_FLEXIBLE_ARRAY_MEMBER(char, name);
+					} S_UNAMESPACE;
 
 					struct
 					{
@@ -498,9 +538,23 @@ namespace PDB
 					{
 						uint32_t offset;
 						uint32_t typeIndex;
+						PDB_FLEXIBLE_ARRAY_MEMBER(char, name);
+					} S_BPRELSYM32;
+
+					struct
+					{
+						uint32_t offset;
+						uint32_t typeIndex;
 						Register reg;
 						PDB_FLEXIBLE_ARRAY_MEMBER(char, name);
-					} S_REGREL32;
+					} S_REGREL32, S_REGREL32_ENCTMP;
+
+					struct
+					{
+						uint32_t typeIndex;
+						Register reg;
+						PDB_FLEXIBLE_ARRAY_MEMBER(char, name);
+					} S_REGSYM;
 
 					struct
 					{
@@ -698,6 +752,16 @@ namespace PDB
 						uint32_t typeIndex;
 						PDB_FLEXIBLE_ARRAY_MEMBER(char, name);
 					} S_UDT, S_UDT_ST;
+
+					struct
+					{
+						uint32_t unknown1;
+						uint32_t typeIndex;
+						uint32_t unknown2;
+						Register reg;
+						PDB_FLEXIBLE_ARRAY_MEMBER(char, name);
+
+					} S_REGREL32_INDIR;
 #pragma pack(pop)
 				} data;
 			};

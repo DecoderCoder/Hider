@@ -11,6 +11,9 @@ class MainWindow : public Window {
 	HWND hwnd = 0;
 	DropManager dropManager;
 public:
+	MainWindow() = default;
+	MainWindow(string inputFile);
+
 	void DropCallback(std::vector<std::wstring> files);
 	virtual bool Render();
 };

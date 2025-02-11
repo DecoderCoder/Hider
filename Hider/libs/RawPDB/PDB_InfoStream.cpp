@@ -29,6 +29,7 @@ PDB::InfoStream::InfoStream(void) PDB_NO_EXCEPT
 PDB::InfoStream::InfoStream(const RawFile& file) PDB_NO_EXCEPT
 	: m_stream(file.CreateMSFStream<CoalescedMSFStream>(InfoStreamIndex))
 	, m_header(m_stream.GetDataAtOffset<const Header>(0u))
+	, m_namesStreamIndex(0)
 	, m_usesDebugFastlink(false)
 {
 	// the info stream starts with the header, followed by the named stream map, followed by the feature codes
@@ -85,11 +86,17 @@ PDB::InfoStream::InfoStream(const RawFile& file) PDB_NO_EXCEPT
 	}
 }
 
+
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 bool PDB::InfoStream::HasNamesStream(void) const PDB_NO_EXCEPT
 {
-	return m_namesStreamIndex != 0;
+	return (m_namesStreamIndex != 0u);
 }
 
+
+// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 PDB::NamesStream PDB::InfoStream::CreateNamesStream(const RawFile& file) const PDB_NO_EXCEPT
 {
 	return NamesStream(file, m_namesStreamIndex);

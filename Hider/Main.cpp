@@ -21,9 +21,24 @@ void RenderThread() {
 	}
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-	mainWindow = new MainWindow();
+	for (int i = 0; i < argc; i++) {
+		Global::LaunchArguments.push_back(string(argv[i]));
+	}
+
+	string inputFile = "";
+
+	for (int i = 0; i < Global::LaunchArguments.size(); i++) {
+		if (Global::LaunchArguments[i] == "-i") {
+			mainWindow = new MainWindow(Global::LaunchArguments[i + 1]);
+			break;
+		}
+	}
+
+	if (!mainWindow)
+		mainWindow = new MainWindow();
+
 	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)RenderThread, NULL, NULL, NULL);
 
 	while (!GetAsyncKeyState(VK_END)) {
