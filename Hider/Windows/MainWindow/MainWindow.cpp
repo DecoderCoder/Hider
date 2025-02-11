@@ -159,6 +159,13 @@ bool MainWindow::Render()
 		}
 		ImGui::EndChild();
 		if (ImGui::Button("Save", ImVec2(ImGui::GetContentRegionAvail().x, 0))) {
+			string selectedFuncs = "";
+			for (auto f : Global::hider.OO.selectedFunctions) {
+				selectedFuncs += hashString(f->Name + to_string((int)f->RecordType), 10) + "\n";
+			}
+			if (fs::exists(Global::hider.SavedFuncsFileName))
+				fs::remove(Global::hider.SavedFuncsFileName);
+			WriteToFile(Global::hider.SavedFuncsFileName, selectedFuncs);
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();

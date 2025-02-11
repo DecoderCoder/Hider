@@ -51,13 +51,17 @@ static string recordType(RecordType type) {
 	}
 }
 
-class String {
+class DataRecord {
 public:
 	string Name;
 	char* Ptr;
 	uint32_t Offset;
 	uint32_t RVA;
 	uint32_t Size;
+};
+
+class String : public DataRecord {
+public:
 	string Value;
 	RecordType RecordType;
 	vector<ZydisDisassembledInstruction*> Usage;
@@ -162,6 +166,9 @@ public:
 	wstring SavedStringsFileName;
 	vector<string> SavedStrings;
 
+	wstring SavedFuncsFileName;
+	vector<string> SavedFuncs;
+
 	char* InputFile;
 	size_t InputFileSize;
 	char* ModifiedFile;
@@ -175,6 +182,7 @@ public:
 	std::vector<PDB::IMAGE_SECTION_HEADER> Sections;
 	std::vector<Function> Functions;
 	std::vector<String> Strings;
+	std::vector<DataRecord> Datas;
 
 	std::map<string, Data*> CustomData;
 	std::map<string, Function*> CustomFunctions;
@@ -187,7 +195,11 @@ public:
 	};
 private:
 	Function GetFunctionByRecord(const PDB::CodeView::DBI::Record* record, const PDB::ImageSectionStream& imageSectionStream, RecordType funcType);
+	Function* GetFunctionByRVA(ULONG RVA);
 	String GetStringByRecord(const PDB::CodeView::DBI::Record* record, char* o_file, const PDB::ImageSectionStream& imageSectionStream, RecordType funcType);
+	String* GetStringByRVA(ULONG RVA);
+	DataRecord GetDataByRecord(const PDB::CodeView::DBI::Record* record, char* o_file, const PDB::ImageSectionStream& imageSectionStream, RecordType funcType);
+	DataRecord* GetDataByRVA(ULONG RVA);
 public:
 
 	PDB::IMAGE_SECTION_HEADER* GetSectionByName(std::string name);

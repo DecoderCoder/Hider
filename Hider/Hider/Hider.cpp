@@ -94,6 +94,58 @@ String Hider::GetStringByRecord(const PDB::CodeView::DBI::Record* record, char* 
 	return str;
 }
 
+DataRecord Hider::GetDataByRecord(const PDB::CodeView::DBI::Record* record, char* o_file, const PDB::ImageSectionStream& imageSectionStream, RecordType funcType)
+{
+	const char* name = nullptr;
+	uint32_t rva = 0u;
+	uint32_t offset = 0;
+	uint32_t size = record->header.size;
+	string value;
+
+	switch (record->header.kind) {
+	case PDB::CodeView::DBI::SymbolRecordKind::S_PUB32: {
+		if (record->data.S_PUB32.flags == PDB::CodeView::DBI::PublicSymbolFlags::None) {
+			name = record->data.S_PUB32.name;
+			rva = imageSectionStream.ConvertSectionOffsetToRVA(record->data.S_PUB32.section, record->data.S_PUB32.offset);
+		}
+		break;
+	}
+	}
+	if (name) {
+		offset = RVA2Offset(rva);
+	}
+	DataRecord str;
+	if (name != nullptr) {
+		str.Name = string(name);
+		str.RVA = rva;
+	}
+	if (name != "blank") {
+		str.Name = str.Name.substr(0, record->header.size - ((uintptr_t)&record->data.S_PUB32.name[0] - (uintptr_t)record));
+	}
+	str.Offset = offset;
+
+	str.Size = value.size();
+	return str;
+}
+
+String* Hider::GetStringByRVA(ULONG RVA)
+{
+	for (auto& s : this->Strings) {
+		if (s.RVA == RVA)
+			return &s;
+	}
+	return nullptr;
+}
+
+DataRecord* Hider::GetDataByRVA(ULONG RVA)
+{
+	for (auto& d : this->Datas) {
+		if (d.RVA == RVA)
+			return &d;
+	}
+	return nullptr;
+}
+
 Function Hider::GetFunctionByRecord(const PDB::CodeView::DBI::Record* record, const PDB::ImageSectionStream& imageSectionStream, RecordType funcType) {
 	const char* name = nullptr;
 	uint32_t rva = 0u;
@@ -213,6 +265,14 @@ Function Hider::GetFunctionByRecord(const PDB::CodeView::DBI::Record* record, co
 	return func;
 }
 
+Function* Hider::GetFunctionByRVA(ULONG RVA)
+{
+	for (auto& f : this->Functions) {
+		if (f.RVA == RVA)
+			return &f;
+	}
+	return nullptr;
+}
 Hider::Status Hider::LoadFile(std::wstring fileName)
 {
 	wstring exeName = fs::path(fileName).filename().wstring();
@@ -227,6 +287,7 @@ Hider::Status Hider::LoadFile(std::wstring fileName)
 
 	OutputEXEFileName = newExeFileName;
 	SavedStringsFileName = fileName.substr(0, fileName.size() - 4) + L"_strings.txt";
+	SavedFuncsFileName = fileName.substr(0, fileName.size() - 4) + L"_funcs.txt";
 
 	if (fs::exists(SavedStringsFileName)) {
 		size_t size;
@@ -237,6 +298,19 @@ Hider::Status Hider::LoadFile(std::wstring fileName)
 			string str = strings.substr(0, strings.find("\n"));
 			if (str.size() > 0)
 				this->SavedStrings.push_back(str);
+			strings.erase(0, str.size() + 1);
+		}
+	}
+
+	if (fs::exists(SavedFuncsFileName)) {
+		size_t size;
+		char* file = ReadAllBytes(SavedFuncsFileName, &size);
+		string strings = string(file, size);
+		replaceAll(strings, "\r", "");
+		while (strings.find("\n") != string::npos) {
+			string str = strings.substr(0, strings.find("\n"));
+			if (str.size() > 0)
+				this->SavedFuncs.push_back(str);
 			strings.erase(0, str.size() + 1);
 		}
 	}
@@ -354,6 +428,8 @@ Hider::Status Hider::Analyze()
 			this->Functions.push_back(f);
 		if (String s = GetStringByRecord(rec.record, this->InputFile, this->PDB->ImageSectionStream, rec.recordType); (s.RVA != 0 && isASCII(s.Value)))
 			this->Strings.push_back(s);
+		if (DataRecord d = GetDataByRecord(rec.record, this->InputFile, this->PDB->ImageSectionStream, rec.recordType); (d.RVA != 0))
+			this->Datas.push_back(d);
 	}
 
 	{
@@ -393,11 +469,26 @@ Hider::Status Hider::Analyze()
 				}
 			}
 		}
+
+		for (auto& savedStr : this->SavedFuncs) {
+			for (auto& f : this->Functions) {
+				if (f.Name != "")
+					if (savedStr == hashString(f.Name + to_string((int)f.RecordType), 10)) {
+						this->OO.selectedFunctions.push_back(&f);
+					}
+			}
+		}
 	}
 
 	return Status::Success;
 }
 
+std::string fixedWidth(int value, int width)
+{
+	char buffer[100];
+	snprintf(buffer, sizeof(buffer), "%.*d", width, value);
+	return buffer;
+}
 Hider::Status Hider::Obfuscate()
 {
 	auto ExecuteSection = AddSection("text2", 0x15000, SectionCharacteristics::Executable);
